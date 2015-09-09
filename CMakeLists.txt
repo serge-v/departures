@@ -5,8 +5,13 @@ find_package(CURL REQUIRED)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/version.c" "${CMAKE_CURRENT_BINARY_DIR}/version.h"
-	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.sh
-	DEPENDS *.c *.h *.sh CMakeLists.txt)
+	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/common/genversion.sh
+	ARGS ${CMAKE_CURRENT_BINARY_DIR}
+	DEPENDS *.c *.h
+	${CMAKE_CURRENT_SOURCE_DIR}/common/genversion.sh CMakeLists.txt
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMENT "Generating version."
+)
 
 add_executable(departures
 	departures.c
