@@ -28,7 +28,6 @@
 #include "version.h"
 
 static int debug = 0;                 /* debug parameter */
-static int debug_server = 0;          /* make requests to debug local server */
 static char *station_from = NULL;     /* departure station */
 static char *station_to = NULL;       /* destination station */
 static FILE *log = NULL;              /* verbose debug log */
@@ -45,7 +44,6 @@ static struct option longopts[] = {
 	{ "stops",        no_argument,       NULL, 'p' },
 	{ "debug",        no_argument,       NULL, 'd' },
 	{ "help",         no_argument,       NULL, 'h' },
-	{ "debug-server", no_argument,       NULL, 's' },
 	{ "version",      no_argument,       NULL, 'v' },
 	{ NULL,           0,                 NULL,  0  }
 };
@@ -267,12 +265,11 @@ station_load(struct station* st, const char *fname)
 static struct station*
 station_create(const char *station_code)
 {
-	const char *api_url = "http://dv.njtransit.com/mobile/tid-mobile.aspx?SID=%s&SORT=A";
-	if (debug_server)
-		api_url = "http://127.0.0.1:8000/njtransit-%s.html";
-
 	char fname[PATH_MAX];
 	char url[100];
+	const char *api_url = "http://dv.njtransit.com/mobile/tid-mobile.aspx?SID=%s&SORT=A";
+
+	snprintf(fname, PATH_MAX, "/tmp/njtransit-%s.html", station_code);
 
 	struct station* st = calloc(1, sizeof(struct station));
 	if (st == NULL)
@@ -280,15 +277,13 @@ station_create(const char *station_code)
 
 	st->code = strdup(station_code);
 	st->name = strdup(station_name(station_code));
-	snprintf(fname, PATH_MAX, "/tmp/njtransit-%s.html", st->code);
-	snprintf(url, 100, api_url, st->code);
 
-	if (expired(fname)) {
-		if (fetch_url(url, fname) != 0)
-			err(1, "Cannot fetch departures for station");
-
-		if (debug)
-			fprintf(log, "%s fetched\n", fname);
+	if (!debug) {
+		snprintf(url, 100, api_url, st->code);
+		if (expired(fname)) {
+			if (fetch_url(url, fname) != 0)
+				err(1, "Cannot fetch departures for station");
+		}
 	}
 
 	station_load(st, fname);
@@ -351,6 +346,9 @@ departures_calculate_next(struct departures *deps, const char *dest_code)
 	size_t num = 0;
 
 	SLIST_FOREACH(dep, deps->list, entries) {
+		if (dep->code == NULL) {
+			err(1, "No code for station %s", dep->destination);
+		}
 		if (strcmp(dep->code, dest_code) == 0)
 			dep->next = ++num;
 	}
@@ -574,27 +572,23 @@ parse_train_stops(const char *fname, struct stop_list* list)
 static size_t
 get_prev_stations(const char *from_code, const char *train, struct stop_list *list)
 {
-	const char *prefix = "";
-	const char *api_url = "http://dv.njtransit.com/mobile/train_stops.aspx?sid=%s&train=%s%s";
-	if (debug_server)
-		api_url = "http://127.0.0.1:8000/njtransit-train-%s-%s%s.html";
-
 	char fname[PATH_MAX];
 	char url[100];
+	const char *prefix = "";
+	const char *api_url = "http://dv.njtransit.com/mobile/train_stops.aspx?sid=%s&train=%s%s";
 
 	snprintf(fname, PATH_MAX, "/tmp/njtransit-train-%s-%s.html", from_code, train);
 
-	if (!debug_server && strlen(train) == 2)
-		prefix = "00";
+	if (!debug) {
+		if (strlen(train) == 2)
+			prefix = "00";
 
-	snprintf(url, 100, api_url, from_code, prefix, train);
+		snprintf(url, 100, api_url, from_code, prefix, train);
 
-	if (expired(fname)) {
-		if (fetch_url(url, fname) != 0)
-			return -1;
-
-		if (debug)
-			printf("%s fetched\n", fname);
+		if (expired(fname)) {
+			if (fetch_url(url, fname) != 0)
+				return -1;
+		}
 	}
 
 	parse_train_stops(fname, list);
@@ -796,9 +790,6 @@ int main(int argc, char **argv)
 				break;
 			case 't':
 				station_to = optarg;
-				break;
-			case 's':
-				debug_server = 1;
 				break;
 			case 'h':
 				usage();
