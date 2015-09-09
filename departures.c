@@ -19,7 +19,8 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include "../common/net.h"
+#include "common/struct.h"
+#include "common/net.h"
 #include "stations.h"
 #include "parser.h"
 #include "util.h"
@@ -830,7 +831,10 @@ int main(int argc, char **argv)
 				.body = b.s,
 			};
 
-			int rc = send_email(&m);
+			char fname[PATH_MAX];
+			snprintf(fname, PATH_MAX, "%s/.config/departures/smtp.txt", getenv("HOME"));
+
+			int rc = send_email(&m, fname);
 
 			if (rc != 0)
 				return 1;

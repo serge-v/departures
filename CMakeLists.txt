@@ -1,20 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
 
-enable_testing()
+find_package(CURL REQUIRED)
 
-set(CMAKE_BUILD_TYPE Debug)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-include_directories("/usr/local/include")
-
-find_library(curl_LIBRARY NAMES curl PATHS "/usr/local/lib")
-
-add_custom_command(OUTPUT "version.c" "version.h"
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/version.c" "${CMAKE_CURRENT_BINARY_DIR}/version.h"
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.sh
-	DEPENDS
-	[!v][!e][!r]*.c
-	[!v][!e][!r]*.h
-	*.sh
-	CMakeLists.txt)
+	DEPENDS *.c *.h *.sh CMakeLists.txt)
 
 add_executable(departures
 	departures.c
@@ -22,6 +14,8 @@ add_executable(departures
 	parser.c
 	util.c
 	common/net.c
-	version.c)
+	common/struct.c
+	${CMAKE_CURRENT_BINARY_DIR}/version.c)
 
-target_link_libraries(departures ${curl_LIBRARY})
+target_link_libraries(departures ${CURL_LIBRARY})
+
