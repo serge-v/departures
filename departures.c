@@ -19,7 +19,6 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include "common/struct.h"
 #include "common/net.h"
 #include "stations.h"
 #include "parser.h"
@@ -278,10 +277,18 @@ station_create(const char *station_code)
 	st->code = strdup(station_code);
 	st->name = strdup(station_name(station_code));
 
-	if (!debug) {
-		snprintf(url, 100, api_url, st->code);
-		if (expired(fname)) {
-			if (fetch_url(url, fname) != 0)
+	snprintf(url, 100, api_url, st->code);
+	if (expired(fname)) {
+
+		struct httpreq_opts opts = {
+			.resp_fname = fname
+		};
+
+		if (debug)
+			fprintf(stderr, "httpreq: %s, dest: %s\n", url, fname);
+
+		if (!debug) {
+			if (httpreq(url, NULL, &opts) != 0)
 				err(1, "Cannot fetch departures for station");
 		}
 	}
@@ -586,7 +593,10 @@ get_prev_stations(const char *from_code, const char *train, struct stop_list *li
 		snprintf(url, 100, api_url, from_code, prefix, train);
 
 		if (expired(fname)) {
-			if (fetch_url(url, fname) != 0)
+			struct httpreq_opts opts = {
+				.resp_fname = fname
+			};
+			if (httpreq(url, NULL, &opts) != 0)
 				return -1;
 		}
 	}
