@@ -1,0 +1,10 @@
+Departures API methods:
+
+/v1/help        -- show this help
+/v1/version     -- show version, build date, etc
+/v1/list        -- list NJT station code and name
+/v1/station/XX  -- list departures for station code
+
+Examples:
+
+curl http://[host]/v1/station/HB     -- list departures for Hoboken

@@ -25,6 +25,7 @@
 #include "util.h"
 #include "color.h"
 #include "version.h"
+#include "api_help.txt.h"
 
 static int debug = 0;                 /* debug parameter */
 static char *station_from = NULL;     /* departure station */
@@ -134,7 +135,7 @@ departure_dump(struct departure *d)
 static void
 parse_tr(char *text, int len, struct departures *deps, struct departure **last_added)
 {
-	if (strstr(text, "<td colspan=") != NULL)
+	if (strnstr(text, " Departures", len) != NULL)
 		return;
 
 	struct trscanner scan;
@@ -811,6 +812,17 @@ int main(int argc, char **argv)
 				synopsis();
 				return 1;
 		}
+	}
+
+	const char *path = getenv("PATH_INFO");
+//	const char *http_method = getenv("HTTP_METHOD");
+
+	if (path != NULL) {
+		if (strcmp(path, "/help") == 0) {
+			printf("help");
+		}
+
+		return 1;
 	}
 
 	if (station_from == NULL)

@@ -3,24 +3,25 @@ cmake_minimum_required(VERSION 2.6)
 find_package(CURL REQUIRED)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include(../common/macros.cmake)
+include_directories(..)
 
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/version.c" "${CMAKE_CURRENT_BINARY_DIR}/version.h"
-	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/common/genversion.sh
-	ARGS ${CMAKE_CURRENT_BINARY_DIR}
-	DEPENDS *.c *.h
-	${CMAKE_CURRENT_SOURCE_DIR}/common/genversion.sh CMakeLists.txt
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMENT "Generating version."
-)
+gen_version_c()
+
+gen_resource_c(api_help.txt)
+
+add_subdirectory(../common "${CMAKE_BINARY_DIR}/common")
 
 add_executable(departures
+	${CMAKE_CURRENT_BINARY_DIR}/api_help.txt.c
 	departures.c
 	stations.c
 	parser.c
 	util.c
-	common/net.c
-	common/struct.c
 	${CMAKE_CURRENT_BINARY_DIR}/version.c)
 
-target_link_libraries(departures ${CURL_LIBRARY})
-
+target_link_libraries(
+	departures
+	${CURL_LIBRARY}
+	svc
+)
