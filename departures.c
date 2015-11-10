@@ -761,11 +761,6 @@ version()
 	printf("departures\n");
 	printf("version %s\n", app_version);
 	printf("date %s\n", app_date);
-	if (strlen(app_diff_stat) > 0) {
-		printf("uncommited changes:\n%s\n", app_diff_stat);
-		if (debug)
-			printf("full diff:\n%s\n", app_diff_full);
-	}
 }
 
 int main(int argc, char **argv)
