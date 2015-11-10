@@ -1,6 +1,6 @@
 all:
-	make -C ~/b/departuresb $(MAKECMDGOALS)
+	make -C ${HOME}/b/departuresb $(MAKECMDGOALS)
 
 clean:
-	make -C ~/b/departuresb clean
+	make -C ${HOME}/b/departuresb clean
 

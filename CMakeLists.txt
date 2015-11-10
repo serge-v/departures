@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 find_package(CURL REQUIRED)
 
+include_directories(/usr/local/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include(../common/macros.cmake)
 include_directories(..)
