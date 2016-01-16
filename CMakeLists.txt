@@ -5,14 +5,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 find_package(CURL REQUIRED)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include(../common/macros.cmake)
-include_directories(..)
+include(../../../w/common/macros.cmake)
+include_directories(../../../w)
 
 gen_version_c()
 
 gen_resource_c(api_help.txt)
 
-add_subdirectory(../common "${CMAKE_BINARY_DIR}/common")
+add_subdirectory(../../../w/common "${CMAKE_BINARY_DIR}/common")
 
 add_executable(departures
 	${CMAKE_CURRENT_BINARY_DIR}/api_help.txt.c
