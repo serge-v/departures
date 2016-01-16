@@ -4,6 +4,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 find_package(CURL REQUIRED)
 
+include_directories(/usr/local/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include(../../../w/common/macros.cmake)
 include_directories(../../../w)
