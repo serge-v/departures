@@ -750,7 +750,7 @@ departures_get_upcoming(const char* from_code, const char *dest_code, struct buf
 			break; // max 2 next trains
 	}
 
-	buf_append(b, credits, sz_credits);
+	buf_append(b, credits, sz_credits - 1);
 
 	return 0;
 }
@@ -829,6 +829,8 @@ int main(int argc, char **argv)
 	memset(&b, 0, sizeof(struct buf));
 
 	if (departures_get_upcoming(station_from, station_to, &b) == 0) {
+		buf_appendf(&b, "\n\ndepartures %s(%s) at host: %s, user: %s\n",
+			    app_version, app_date, getenv("HOST"), getenv("USER"));
 		printf("%s", b.s);
 
 		if (email) {
