@@ -6,16 +6,16 @@ find_package(CURL REQUIRED)
 find_package(LibXml2 REQUIRED)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include(../../../w/common/macros.cmake)
+include(../../w/common/macros.cmake)
 include_directories(${LIBXML2_INCLUDE_DIR})
 include_directories(${CURL_INCLUDE_DIR})
-include_directories(../../../w)
+include_directories(../../w)
 
 gen_version_c()
 
 gen_resource_c(api_help.txt)
 
-add_subdirectory(../../../w/common "${CMAKE_BINARY_DIR}/common")
+add_subdirectory(../../w/common "${CMAKE_BINARY_DIR}/common")
 
 add_executable(departures
 	${CMAKE_CURRENT_BINARY_DIR}/api_help.txt.c
